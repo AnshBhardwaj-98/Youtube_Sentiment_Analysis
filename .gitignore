@@ -1,43 +1,14 @@
-# Virtual environment
 venv/
-env/
-*.env
-
-# Python cache files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Distribution / packaging
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Logs
 *.log
-*.out
-*.err
-
-# OS generated files
+.env
 .DS_Store
 Thumbs.db
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# IDE / editor specific files
-.vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-
-# TensorFlow / Keras checkpoints or saved models (optional)
+.vscode/
 *.h5
 *.ckpt
-*.pb
 saved_model/
-
-# Docker files (optional)
-*.dockerignore

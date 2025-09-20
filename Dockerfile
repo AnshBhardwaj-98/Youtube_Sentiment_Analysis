@@ -1,30 +1,42 @@
-# Use official slim Python image (smaller)
+# Use official slim Python image
 FROM python:3.10-slim
 
-# Avoid Python buffering (helps logs)
+# Avoid Python buffering & bytecode files
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# Install OS packages needed for some python packages (kept minimal)
+# Install minimal OS dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (layer caching: only re-run pip when requirements change)
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Upgrade pip
+RUN pip install --upgrade pip
 
-# Copy app code and model files
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the app code
 COPY . .
 
-# Create a non-root user to run the app (better security)
-RUN useradd --create-home appuser
+# Suppress TensorFlow logs
+ENV TF_CPP_MIN_LOG_LEVEL=3
+ENV TF_ENABLE_ONEDNN_OPTS=0
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash appuser
 USER appuser
 
+# Expose Flask port
 EXPOSE 5000
 
-# Run with Gunicorn (production WSGI server). Use 4 workers as a starting point.
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app", "--timeout", "120"]
+# Run app with Gunicorn (production)
+# 2 workers to reduce memory usage
+CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:5000", "app:app", "--timeout", "120", "--log-level", "info"]
