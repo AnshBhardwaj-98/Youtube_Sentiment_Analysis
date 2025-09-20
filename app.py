@@ -22,7 +22,15 @@ warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 # ----------------
 # Load Model, Tokenizer, and Label Encoder
 # ----------------
-model = load_model("lstm_model.keras")
+# model = load_model("lstm_model.keras")
+
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        model = load_model("lstm_model.keras")
+    return model
 
 with open("tokenizer.pkl", "rb") as f:
     tokenizer = pickle.load(f)
@@ -42,6 +50,10 @@ app = Flask(__name__)
 def home():
     return "Flask/YT_sentiment_analysis"
 
+@app.route("/healthz")
+def health():
+    return "OK", 200
+
 # Mapping for readability
 class_map = {
     -1: "Negative",
@@ -58,6 +70,8 @@ def predict():
         return jsonify({"error": "No comments provided"}), 400
 
     # Convert text → sequences
+    model = get_model()
+
     sequences = tokenizer.texts_to_sequences(comments)
     padded = pad_sequences(sequences, maxlen=MAXLEN)
 
