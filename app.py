@@ -46,7 +46,7 @@ MAXLEN = 100
 # Flask setup
 # ----------------
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}) 
+CORS(app, resources={r"/*": {"origins": ["https://www.youtube.com", "chrome-extension://*"]}})
 
 @app.after_request
 def add_cors_headers(response):
