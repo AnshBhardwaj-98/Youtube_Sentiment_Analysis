@@ -5,6 +5,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
 import pickle
 import numpy as np
 from tensorflow.keras.models import load_model
@@ -45,6 +46,7 @@ MAXLEN = 100
 # Flask setup
 # ----------------
 app = Flask(__name__)
+CORS(app) 
 
 @app.route("/")
 def home():
