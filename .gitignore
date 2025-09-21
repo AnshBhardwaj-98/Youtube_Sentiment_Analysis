@@ -12,3 +12,4 @@ Thumbs.db
 *.h5
 *.ckpt
 saved_model/
+extra
