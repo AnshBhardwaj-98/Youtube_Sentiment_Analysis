@@ -20,10 +20,6 @@ from sklearn.exceptions import InconsistentVersionWarning
 # Suppress sklearn version warning
 warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 
-# ----------------
-# Load Model, Tokenizer, and Label Encoder
-# ----------------
-# model = load_model("lstm_model.keras")
 
 model = None
 
@@ -39,12 +35,8 @@ with open("tokenizer.pkl", "rb") as f:
 with open("label_encoder.pkl", "rb") as f:
     label_encoder = pickle.load(f)
 
-# Make sure this matches training time
 MAXLEN = 100  
 
-# ----------------
-# Flask setup
-# ----------------
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["https://www.youtube.com", "chrome-extension://*"]}})
 
@@ -79,7 +71,7 @@ def predict():
     if not comments:
         return jsonify({"error": "No comments provided"}), 400
 
-    # Convert text → sequences
+    # text → sequences
     model = get_model()
 
     sequences = tokenizer.texts_to_sequences(comments)
@@ -88,7 +80,7 @@ def predict():
     # Predict probabilities
     preds = model.predict(padded)
 
-    # Instead of argmax, use label_encoder to map directly
+    # 
     pred_classes = label_encoder.inverse_transform(np.argmax(preds, axis=1))
 
     # Decode numeric → sentiment
@@ -98,11 +90,12 @@ def predict():
     counts = Counter(decoded)
     overall_sentiment = max(counts, key=counts.get) if counts else "Unknown"
 
-    # Get top 10 positive comments
+    # Get top 10 +ve comments
     positive_comments = [
         comment for comment, sentiment in zip(comments, decoded) if sentiment == "Positive"
     ][:10]
 
+    # Return response
     return jsonify({
         "overall_sentiment": overall_sentiment,
         "total_positive": counts.get("Positive", 0),
